@@ -1,0 +1,1 @@
+<li><a class="sidebar_icon" href="<?= base_url() ?>home/comments"><img src="<?= $this_module_assets ?>comments_24.png"><span>Comments</span></a></li>
