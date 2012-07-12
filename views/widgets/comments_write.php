@@ -1,26 +1,16 @@
-<div id="comments_write">
-
-	<h3>Write A Comment</h3>
-
-	<form action="<?= $comments_post ?>" method="post" name="comments_write_form" id="<?= $comments_write_form ?>">
-		<?php if($this->social_auth->logged_in()): ?>
-		<a href="<?= $link_profile ?>"><span class="comment_thumbnail"><img src="<?= $logged_image ?>" border="0" /></span></a>
-		<span class="comment_write">
-			<a href="<?= $link_profile ?>"><?= $logged_name; ?></a> says:
-		<?php else: ?>
-		<span class="comment_thumbnail"><img src="<?= $logged_image ?>" border="0" /></span>
-		<span class="comment_write">
-			<span id="comment_name_email">
-			<input type="text" name="comment_name" id="comment_name" value="<?= $comment_name; ?>">
-			<input type="text" name="comment_email" id="comment_email" value="<?= $comment_email; ?>">
-			<div id="comment_email_error" class="error"></div>
-			</span>
-		<?php endif; ?>
-			<textarea name="comment" id="comment_write_text" rows="3" cols="38"><?= $comment_write_text; ?></textarea>
+<div class="widget_<?= $widget_region ?> widget_comments_comments_write" id="widget_<?= $widget_id ?>">
+	<h3><?= $widget_title ?></h3>
+	<form method="post" name="comments_write_form" id="comments_write_form">
+		<div class="comment_thumbnail">
+			<a href="<?= $link_profile ?>"><img src="<?= $logged_image ?>" border="0"></a>
+		</div>
+		<div class="comment_write">
+			<a href="<?= $link_profile ?>"><?= $logged_name; ?></a> says:<br>
+			<textarea name="comment" id="comment_write_text" placeholder="Write comment..." rows="3" cols="38"><?= $comment_write_text; ?></textarea><br>
 			<?= $recaptcha ?>
 			<div id="comment_error" class="error"><?= $comment_error ?></div>
 			<input type="submit" id="comment_submit" value="Comment">
-		</span>
+		</div>
 		<div class="clear"></div>
 		<input type="hidden" name="module" value="<?= $comment_module ?>">
 		<input type="hidden" name="type" value="<?= $comment_type ?>">
@@ -29,142 +19,53 @@
 		<input type="hidden" name="geo_lat" id="geo_lat" value="<?= $geo_lat ?>">
 		<input type="hidden" name="geo_long" id="geo_long" value="<?= $geo_long ?>">
 	</form>
-	<div class="clear"></div>
-
 </div>
 
 <script type="text/javascript">
 $(document).ready(function()
 {
-	// Placeholders 
-	doPlaceholder('#comment_name', 'Your Name');
-	doPlaceholder('#comment_email', 'your@email.com');
-	doPlaceholder('#comment_write_text', 'Write comment...');
-
 	// Comments On Site
-	$('#comments_logged_form').bind('submit', function(eve)
+	$('#comments_write_form').bind('submit', function(e)
 	{
-		eve.preventDefault();
-				
-		var comment_count_current	= $('#comments_count').html();
-		var reply_to_id				= $('#reply_to_id').val();
-		var comment 				= isFieldValid('#comment_write_text', 'Write comment...', 'Please write something!');		
-
-		if(comment_count_current == 'Write')	var comment_count_updated = 1;
-		else									var comment_count_updated = parseInt(comment_count_current) + 1;		
-
-		// Reply or Normal		
-		if (reply_to_id)	var append_to_where = '#comment-replies-' + reply_to_id;
-		else				var append_to_where = '#comments_list';
-		
-		// Is Valid		
-		if (comment == true)
-		{		
-			var comment_data $('#comments_logged_form').serializeArray();
+		e.preventDefault();		
+		var comment_data = $('#comments_write_form').serializeArray();
+		console.log(comment_data);
 					
-			$.oauthAjax(
-			{			
-				oauth 		: user_data,
-				url			: base_url + 'api/comments/create',
-				type		: 'POST',
-				dataType	: 'json',
-				data		: comment_data,
-			  	success		: function(result)
-			  	{				  		  				  	
-					if(result.status == 'success')
-					{		 	
-						var html = '<li class="' + result.data.sub + 'comment" id="comment-' + result.data.comment_id + '"><a href="' + result.data.profile_link + '"><span class="comment_thumbnail"><img src="' + user_data.image + '" border="0" /></span></a><span class="' + result.data.sub + 'comment"><a href="' + result.data.profile_link + '">' + result.data.name + '</a> ' + result.data.comment + '<span class="comment_date ' + result.data.sub + '">' + result.data.created_at + '</span><ul class="comment_actions"><li><a href="' + base_url + 'api/comments/destroy/id/' + result.data.comment_id + '" id="delete-' + result.data.comment_id + '" class="comment_delete"><span class="item_actions action_delete"></span> Delete</a></li></ul><div class="clear"></div></span><div class="clear"></div></li>';
-				 					 	
-					 	$(append_to_where).append(html).show('slow');
-						$('#comment_write_text').val('');
-						$('#reply_to_id').val('');
-						$('#comments_count').html(comment_count_updated);
-						doPlaceholder('#comment_write_text', 'Write comment...');
-						<?= $callback ?>					
-				 	}
-				 	else
-				 	{					 		
-					 	$('#comment_error').append(result.message).show('normal');
-					}
+		$.oauthAjax(
+		{			
+			oauth 		: user_data,
+			url			: base_url + 'api/comments/create',
+			type		: 'POST',
+			dataType	: 'json',
+			data		: comment_data,
+		  	success		: function(result)
+		  	{				  		  				  	
+				if(result.status == 'success')
+				{
+					var comment_count_current	= $('#comments_count').html();
+					var reply_to_id				= $('#reply_to_id').val();
+			
+					if(comment_count_current == 'Write')	var comment_count_updated = 1;
+					else									var comment_count_updated = parseInt(comment_count_current) + 1;		
+			
+					// Reply or Normal		
+					if (reply_to_id)	var append_to_where = '#comment-replies-' + reply_to_id;
+					else				var append_to_where = '#comments_list';				
+							
+									 	
+					var html = '<li class="' + result.data.sub + 'comment" id="comment-' + result.data.comment_id + '"><a href="' + result.data.profile_link + '"><span class="comment_thumbnail"><img src="' + user_data.image + '" border="0" /></span></a><span class="' + result.data.sub + 'comment"><a href="' + result.data.profile_link + '">' + result.data.name + '</a> ' + result.data.comment + '<span class="comment_date ' + result.data.sub + '">' + result.data.created_at + '</span><ul class="comment_actions"><li><a href="' + base_url + 'api/comments/destroy/id/' + result.data.comment_id + '" id="delete-' + result.data.comment_id + '" class="comment_delete"><span class="item_actions action_delete"></span> Delete</a></li></ul><div class="clear"></div></span><div class="clear"></div></li>';
+			 					 	
+				 	$(append_to_where).append(html).show('slow');
+					$('#comment_write_text').val('');
+					$('#reply_to_id').val('');
+					$('#comments_count').html(comment_count_updated);
 			 	}
-			});
-		}
-		else
-		{
-			eve.preventDefault();
-		}	
-	});
-
-	$('#comments_public_form').bind('submit', function(eve)
-	{
-		$('#comment_email_error').val('').hide('fast');
-		$('#comment_error').hide('fast');
-
-		if ($('#recaptcha_widget_div').length)
-		{	
-			Recaptcha.reload();
-		}
-		
-		var name					= isFieldValid('#comment_name', 'Your Name', 'Please enter your name');
-		var email					= isFieldValid('#comment_email', 'your@email.com', 'Please enter your email', 'email');	
-		var comment 				= isFieldValid('#comment_write_text', 'Write comment...', 'Please write something!');
-		var email_address 			= $('#comment_email').val();
-		var email_valid				= validateEmailAddress(email_address);
-		var comment_count_current	= $('#comments_count').html();
-		var reply_to_id				= $('#reply_to_id').val();
-
-		if(comment_count_current == 'Write')	var comment_count_updated = 1;
-		else									var comment_count_updated = parseInt(comment_count_current) + 1;		
-		
-		// Reply or Normal
-		if (reply_to_id)	var append_to_where = '#comment-replies-' + reply_to_id;
-		else				var append_to_where = '#comments_list';
-
-		// Is Valid		
-		if (name == true && email == true && email_valid == true && comment == true)
-		{		
-			$.ajax(
-			{
-				url			: base_url + 'api/comments/create_public',
-				type		: "POST",
-				dataType	: "json",
-				data		: $('#comments_public_form').serialize(),	
-			  	success		: function(result)
-			  	{			  				  		  				  	
-					if(result.status == 'error')
-					{
-						$('#comment_error').html('');	
-					 	$('#comment_error').append(result.message).show('normal');
-				 	}
-				 	else
-				 	{
-						var html = '<li class="' + result.data.sub + 'comment" id="comment-' + result.data.comment_id + '"><a href="' + result.data.profile_link + '"><span class="comment_thumbnail"><img src="' + user_data.image + '" border="0" /></span></a><span class="' + result.data.sub + 'comment"><a href="' + result.data.profile_link + '">' + result.data.name + '</a> ' + result.data.comment + '<span class="comment_date ' + result.data.sub + '">' + result.data.created_at + '</span><ul class="comment_actions"><li><a href="' + base_url + 'api/comments/destroy/id/' + result.data.comment_id + '" id="delete-' + result.data.comment_id + '" class="comment_delete"><span class="item_actions action_delete"></span> Delete</a></li></ul><div class="clear"></div></span><div class="clear"></div></li>';				 	
-				 				 	
-					 	$(append_to_where).append(html).show('slow');
-						$('#comment_name').val('');
-						$('#comment_email').val('');
-						$('#comment_write_text').val('');
-						$('#reply_to_id').val('');
-						$('#comments_count').html(comment_count_updated);
-						
-						doPlaceholder('#comment_name', 'Your Name');
-					 	doPlaceholder('#comment_email', 'your@email.com');
-					 	doPlaceholder('#comment_write_text', 'Write comment...');
-				 	}	
-			 	}
-			});		
-		}
-		else if (name == true && email == true && email_valid == false && comment == true)
-		{
-			$('#comment_email_error').html('That email address is not valid').show('normal');
-			$('#comment_email_error').oneTime(2500, function(){$('#comment_email_error').hide('slow')});			
-		}
-		else
-		{
-			eve.preventDefault();
-		}
-					
-		return false;
+			 	else
+			 	{					 		
+				 	$('#comment_error').append(result.message).show('normal');
+				}
+		 	}
+		});
 	});
 
 		
@@ -173,10 +74,11 @@ $(document).ready(function()
 		var reply_id = $(this).attr('id').split('-');		
 		$('#reply_to_id').val(reply_id[1]);
 	});
+
 	
-	$('.comment_delete').live('click', function(eve)
+	$('.comment_delete').live('click', function(e)
 	{
-		eve.preventDefault();
+		e.preventDefault();
 		var comment_id 				= $(this).attr('id').split('-');
 		var comment_delete			= $(this).attr('href');
 		var comment_element			= '#comment-' + comment_id[1];	
@@ -211,6 +113,8 @@ $(document).ready(function()
 		 	}
 		});
 	});
+	
+	
 });
 </script>
 

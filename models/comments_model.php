@@ -141,13 +141,14 @@ class Comments_model extends CI_Model
 			'geo_long'			=> $comment_data['geo_long'],
 			'viewed'			=> $viewed,
 			'approval'			=> $comment_data['approval'],
-			'created_at' 		=> unix_to_mysql(now())
-		);	
-		
+			'created_at' 		=> unix_to_mysql(now()),
+			'updated_at' 		=> unix_to_mysql(now())			
+		);
+
 		$this->db->insert('comments', $data);
 		return $this->db->insert_id();
     }
-    
+
     function update_comment_viewed($comment_id)
     {
     	$this->db->where('comment_id', $comment_id);

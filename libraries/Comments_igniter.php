@@ -22,11 +22,9 @@ class Comments_Igniter
 		$this->ci->load->model('comments_model');
 
 		// Define Variables
-		$this->view_comments = NULL;
+		$this->view_comments = '';
 	}
-		
-	
-	/* Comments */
+
 	function get_comment($comment_id)
 	{
 		return $this->ci->comments_model->get_comment($comment_id);
@@ -77,8 +75,10 @@ class Comments_Igniter
 			// Get Comment
 			$comment = $this->get_comment($comment_id);
 
+			$comments_count = $this->get_comments_content_count($comment_data['content_id']);
+
 			// Update Comments Count
-			$this->ci->social_igniter->update_content_comments_count($comment->content_id);		
+			$this->ci->social_igniter->update_content_value(array('content_id' => $comment_data['content_id'], 'comments_count' => $comments_count));		
 		}
 		
 		return $comment;
@@ -125,41 +125,24 @@ class Comments_Igniter
 		
 		return TRUE;
 	}
-	
-	function make_comments_section($content_id, $type, $logged_user_id, $logged_user_level_id, $callback=FALSE)
-	{
-		// Get Comments
-		$comments 							= $this->get_comments_content($content_id);
-		$comments_count						= $this->get_comments_content_count($content_id);
-		
-		if ($comments_count)	$comments_title = $comments_count;
-		else					$comments_title = 'Write';
-		
-		if ($callback)			$this->data['callback'] = $callback;
-		else					$this->data['callback'] = '';
-
-		$this->data['content_id']			= $content_id;
-		$this->data['comments_title']		= $comments_title;
-		$this->data['comments_list'] 		= $this->render_comments_children($comments, '0', $logged_user_id, $logged_user_level_id);
-	}
 
 	function render_comments_children($comments, $reply_to_id, $user_id, $user_level_id)
 	{
 		foreach ($comments as $child)
 		{
 			if ($reply_to_id == $child->reply_to_id)
-			{			
-				$this->data['comment'] = $child;
+			{
+				$comment_data['comment'] = $child;
 			
-				if ($reply_to_id != '0') $this->data['sub'] = 'sub_';
-				else					 $this->data['sub'] = '';
+				if ($reply_to_id != '0') $comment_data['sub'] = 'sub_';
+				else					 $comment_data['sub'] = '';
 			
-				$this->data['comment_id']		= $child->comment_id;
-				$this->data['comment_text']		= $child->comment;
-				$this->data['reply_id']			= $child->comment_id;
-				$this->data['item_can_modify']	= $this->ci->social_auth->has_access_to_modify('comment', $child, $user_id, $user_level_id);
+				$comment_data['comment_id']		= $child->comment_id;
+				$comment_data['comment_text']		= $child->comment;
+				$comment_data['reply_id']			= $child->comment_id;
+				$comment_data['item_can_modify']	= $this->ci->social_auth->has_access_to_modify('comment', $child, $user_id, $user_level_id);
 
-				$this->view_comments  	       .= $this->ci->load->view('../modules/comments/views/partials/comments_list', $this->data, true);
+				$this->view_comments  	       .= $this->ci->load->view('../modules/comments/views/partials/comment', $comment_data, true);
 				
 				// Recursive Call
 				$this->render_comments_children($comments, $child->comment_id, $user_id, $user_level_id);

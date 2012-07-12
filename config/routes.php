@@ -11,17 +11,6 @@
 $route['comments'] 										= 'comments';
 $route['feed/comments']									= 'feed/comments';
 
-/* Comments */
-$route['comments/api/content/(:any)/(:any)']			= 'api/comments/content/$1/$2';
-$route['comments/api/viewed/(:any)/(:any)']				= 'api/comments/viewed/$1/$2';
-$route['comments/api/approve/(:any)/(:any)']			= 'api/comments/approve/$1/$2';
-$route['comments/api/destroy/(:any)/(:any)']			= 'api/comments/destroy/$1/$2';
-$route['comments/api/content']							= 'api/comments/content';
-$route['comments/api/recent']							= 'api/comments/recent';
-$route['comments/api/create']							= 'api/comments/create';
-$route['comments/api/create_public']					= 'api/comments/create_public';
-$route['comments/api/new']								= 'api/comments/new';
-
 $route['comments/home/(:any)'] 							= 'home/index/$1';
 $route['comments/home/'] 								= 'home/index';
 

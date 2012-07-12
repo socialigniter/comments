@@ -48,7 +48,7 @@ class Api extends Oauth_Controller
     // Recent Comments
     function recent_get()
     {
-        $comments = $this->social_tools->get_comments_recent('all', 25);
+        $comments = $this->comments_igniter->get_comments_recent('all', 25);
         
         if ($comments)
         {
@@ -67,7 +67,7 @@ class Api extends Oauth_Controller
     {
         if ($this->get('id'))
         {
-      		$comments = $this->social_tools->get_comments_content($this->get('id'));
+      		$comments = $this->comments_igniter->get_comments_content($this->get('id'));
     	
 	        if($comments)
 	        {
@@ -91,7 +91,7 @@ class Api extends Oauth_Controller
 	{	
 		$site_id = config_item('site_id');	
 	
-		if ($new_comments = $this->social_tools->get_comments_new_count($site_id, $this->oauth_user_id))
+		if ($new_comments = $this->comments_igniter->get_comments_new_count($site_id, $this->oauth_user_id))
 		{
          	$message = array('status' => 'success', 'message' => 'New comments found', 'data' => $new_comments);	
 		}
@@ -125,9 +125,9 @@ class Api extends Oauth_Controller
 	    			'geo_long'		=> $this->input->post('geo_long'),
 	    			'approval'		=> $content->comments_allow
 	        	);
-	
+
 				// Insert
-				if ($comment = $this->social_tools->add_comment($comment_data))
+				if ($comment = $this->comments_igniter->add_comment($comment_data))
 				{
 					$comment_data['comment_id']		= $comment->comment_id;
 					$comment_data['created_at']		= format_datetime(config_item('comments_date_style'), $comment->created_at);
@@ -257,10 +257,6 @@ class Api extends Oauth_Controller
 		        	// Register User
 		        	if ($this->social_auth->register($username, $password, $email, $additional_data, $level))
 		        	{
-		        	
-		        		log_message('debug', 'COOOOM inside register');
-
-		        	
 						$user = $this->social_auth->get_user('email', $this->input->post('comment_email'));
 		       		}
 				}
@@ -279,12 +275,8 @@ class Api extends Oauth_Controller
 	        	);
 	
 				// Insert
-				if ($comment = $this->social_tools->add_comment($comment_data))
+				if ($comment = $this->comments_igniter->add_comment($comment_data))
 				{			
-				
-					log_message('debug', 'COOOOM inside comment created');
-
-						
 					$comment_data['comment_id']		= $comment->comment_id;
 					$comment_data['created_at']		= format_datetime(config_item('comments_date_style'), $comment->created_at);
 					$comment_data['name']			= $comment->name;
@@ -331,7 +323,7 @@ class Api extends Oauth_Controller
     /* PUT types */
     function viewed_authd_get()
     {				
-        if($this->social_tools->update_comment_viewed($this->get('id')))
+        if($this->comments_igniter->update_comment_viewed($this->get('id')))
         {
             $message = array('status' => 'success', 'message' => 'Comment viewed');
         }
@@ -345,7 +337,7 @@ class Api extends Oauth_Controller
     
     function approve_authd_get()
     {
-    	$approve = $this->social_tools->update_comment_approve($this->get('id'));	
+    	$approve = $this->comments_igniter->update_comment_approve($this->get('id'));	
 
         if($approve)
         {
@@ -361,15 +353,15 @@ class Api extends Oauth_Controller
 
     function destroy_authd_get()
     {		
-		$comment = $this->social_tools->get_comment($this->get('id'));
+		$comment = $this->comments_igniter->get_comment($this->get('id'));
 		
 		// Make sure user has access to do this func    	
     	if ($access = $this->social_auth->has_access_to_modify('comment', $comment, $this->oauth_user_id))
         {       
-        	$this->social_tools->delete_comment($comment->comment_id);
+        	$this->comments_igniter->delete_comment($comment->comment_id);
         
 			// Reset comments with this reply_to_id
-			$this->social_tools->update_comment_orphaned_children($comment->comment_id);
+			$this->comments_igniter->update_comment_orphaned_children($comment->comment_id);
 			
 			// Update Content
 			$this->social_igniter->update_content_comments_count($comment->comment_id);

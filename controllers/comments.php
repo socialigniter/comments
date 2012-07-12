@@ -25,7 +25,17 @@ class Comments extends Site_Controller
 	/* Widgets */
 	function widgets_comments_list($widget_data)
 	{
-		$widget_data['comments_view'] = $this->comments_igniter->make_comments_section($this->data['content_id'], 'page', $this->data['logged_user_id'], $this->data['logged_user_level_id']);
+		// Get Comments
+		$comments 							= $this->comments_igniter->get_comments_content($widget_data['content_id']);
+		$comments_count						= count($comments);
+
+		if ($comments_count)	$comments_title = $comments_count;
+		else					$comments_title = 'Write';
+		
+		$widget_data['comments_title']		= $comments_title;
+		
+		// Recursive Function that builds comments
+		$widget_data['comments'] 			= $this->comments_igniter->render_comments_children($comments, 0, $widget_data['logged_user_id'], $widget_data['logged_user_level_id']);
 
 		$this->load->view('widgets/comments_list', $widget_data);
 	}
