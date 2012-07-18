@@ -1,4 +1,9 @@
 <style type="text/css">
+#comments a 							{ font-weight: normal; color: #<?= config_item('design_link_color_normal') ?>; text-decoration: none; }
+#comments a:visited						{ font-weight: normal; color: #<?= config_item('design_link_color_visited') ?>; text-decoration: none; }
+#comments a:hover						{ font-weight: normal; color:#<?= config_item('design_link_color_hover') ?>; text-decoration: underline; }
+#comments a:active						{ font-weight: normal; text-decoration: none; }
+
 /* Comments List */
 div.widget_comments_comments_list		{ width: 550px; margin: 25px 0 50px 0; }
 div.widget_comments_comments_list li	{ margin: 0 0 15px 0; }
