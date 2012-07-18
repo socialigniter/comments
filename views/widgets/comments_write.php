@@ -1,5 +1,5 @@
 <div class="widget_<?= $widget_region ?> widget_comments_comments_write" id="widget_<?= $widget_id ?>">
-	<h3><?= $widget_title ?></h3>
+	<?php if ($widget_title): ?><h3><?= $widget_title ?></h3><?php endif; ?>
 	<form method="post" name="comments_write_form" id="comments_write_form">
 		<div class="comment_thumbnail">
 			<a href="<?= $link_profile ?>"><img src="<?= $logged_image ?>" border="0"></a>
