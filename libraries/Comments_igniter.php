@@ -35,6 +35,11 @@ class Comments_Igniter
 		return $this->ci->comments_model->get_comments($site_id, $owner_id, $module);
 	}
 
+	function get_comments_mine($site_id, $user_id, $module='all')
+	{
+		return $this->ci->comments_model->get_comments_mine($site_id, $user_id, $module);
+	}
+
 	function get_comments_recent($module=NULL, $limit=10)
 	{
 		return $this->ci->comments_model->get_comments_recent(config_item('site_id'), $module, $limit);

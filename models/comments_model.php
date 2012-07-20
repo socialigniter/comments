@@ -39,6 +39,28 @@ class Comments_model extends CI_Model
  		return $result->result();
     }
 
+    function get_comments_mine($site_id, $user_id, $module)
+    {
+    	if ($module == 'all')
+    	{
+    		$where = array('comments.site_id' => $site_id, 'comments.user_id' => $user_id);
+		}
+		else
+		{
+		    $where = array('comments.site_id' => $site_id, 'comments.user_id' => $user_id, 'comments.module' => $module);
+		}
+
+ 		$this->db->select('comments.*, content.title, content.title_url, users.username, users.gravatar, users.name, users.image');
+ 		$this->db->from('comments');
+ 		$this->db->join('content', 'content.content_id = comments.content_id');
+ 		$this->db->join('users', 'users.user_id = comments.user_id');
+ 		$this->db->where($where);
+    	$this->db->where('comments.approval !=', 'D');
+ 		$this->db->order_by('created_at', 'desc');
+ 		$result = $this->db->get();	
+ 		return $result->result();
+    }
+
     function get_comments_recent($site_id, $module, $limit)
     {
     	if ($module == 'all')

@@ -11,7 +11,7 @@
 $route['comments'] 										= 'comments';
 $route['feed/comments']									= 'feed/comments';
 
-$route['comments/home/(:any)'] 							= 'home/index/$1';
-$route['comments/home/'] 								= 'home/index';
+$route['comments/home/others']							= 'home/feed';
+$route['comments/home/mine']							= 'home/feed';
 
 $route['comments/settings']								= 'settings/index';

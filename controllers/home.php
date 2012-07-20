@@ -20,14 +20,22 @@ class Home extends Dashboard_Controller
 		$this->data['page_title'] = 'Comments';
 	}
 	
-	function index()
+	function feed()
  	{
  	    $this->data['page_title'] 	= "Comments";
  	    $this->data['sub_title'] 	= "Recent";
- 		$this->data['navigation']	= $this->load->view(config_item('dashboard_theme').'/partials/navigation_comments.php', $this->data, true);
 
-		$comments 					= $this->social_tools->get_comments(config_item('site_id'), $this->session->userdata('user_id'), $this->uri->segment(3));		
+ 	    if ($this->uri->segment(3) == 'others')
+ 	    {
+			$comments = $this->comments_igniter->get_comments(config_item('site_id'), $this->session->userdata('user_id'));		
+		}
+		else
+		{
+			$comments = $this->comments_igniter->get_comments_mine(config_item('site_id'), $this->session->userdata('user_id'));			
+		}
+		
 		$comments_view 				= NULL;
+				
 		$this->data['feed_type']	= 'comments';
     	$this->data['item_verb']	= item_type($this->lang->line('object_types'), 'comment');
 	
@@ -45,8 +53,17 @@ class Home extends Dashboard_Controller
 				$this->data['item_viewed']			= item_viewed('item', $comment->viewed);
 				
 				// Contributor
-				$this->data['item_avatar']			= $this->social_igniter->profile_image($comment->user_id, $comment->image, $comment->gravatar);
-				$this->data['item_contributor']		= $comment->name;
+				$this->data['item_avatar']			= $this->social_igniter->profile_image($comment->user_id, $comment->image, $comment->gravatar, 'medium', 'dashboard_theme');
+				
+				if ($comment->user_id == $this->session->userdata('user_id'))
+				{
+					$this->data['item_contributor']	= 'You';					
+				}
+				else
+				{
+					$this->data['item_contributor']	= $comment->name;
+				}
+				
 				$this->data['item_profile']			= base_url().'profile/'.$comment->username;
 
 				// Activity
@@ -69,8 +86,8 @@ class Home extends Dashboard_Controller
 				$this->data['item_alerts']			= item_alerts_comment($comment);
 		
 		 		// Actions
-				$this->data['item_view'] 			= base_url().$comment->module.'/view/'.$comment->content_id.'/'.$comment->comment_id;
-				$this->data['item_reply'] 			= base_url().$comment->module.'/reply/id/'.$comment->content_id.'/'.$comment->comment_id;
+				$this->data['item_view'] 			= base_url().$comment->module.'/view/'.$comment->content_id.'/#comment-'.$comment->comment_id;
+				$this->data['item_reply'] 			= base_url().$comment->module.'/view/'.$comment->content_id.'/#comment-'.$comment->comment_id;
 				$this->data['item_approve']			= base_url().'api/comments/approve/id/'.$comment->comment_id;
 				$this->data['item_delete']			= base_url().'api/comments/destroy/id/'.$comment->comment_id;
 				
