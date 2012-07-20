@@ -2,18 +2,18 @@
 	<?php if ($widget_title): ?><h3><?= $widget_title ?></h3><?php endif; ?>
 	<form method="post" name="comments_write_form" id="comments_write_form">
 		<div class="comment_thumbnail">
-			<a href="<?= $link_profile ?>"><img src="<?= $logged_image ?>" border="0"></a>
+			<a href="<?= $logged_profile ?>"><img src="<?= $this->social_igniter->profile_image($this->session->userdata('user_id'), $this->session->userdata('image'), $this->session->userdata('gravatar')) ?>" border="0"></a>
 		</div>
 		<div class="comment_write">
-			<a href="<?= $link_profile ?>"><?= $logged_name; ?></a> says:<br>
-			<textarea name="comment" id="comment_write_text" placeholder="Write comment..." rows="3" cols="38"><?= $comment_write_text; ?></textarea><br>
+			<a href="<?= $logged_profile ?>"><?= $logged_name; ?></a> says:<br>
+			<textarea name="comment" id="comment_write_text" placeholder="Write comment..." rows="3" cols="38"></textarea><br>
 			<?= $recaptcha ?>
 			<div id="comment_error" class="error"><?= $comment_error ?></div>
 			<input type="submit" id="comment_submit" value="Comment">
 		</div>
 		<div class="clear"></div>
-		<input type="hidden" name="module" value="<?= $comment_module ?>">
-		<input type="hidden" name="type" value="<?= $comment_type ?>">
+		<input type="hidden" name="module" value="<?= $module ?>">
+		<input type="hidden" name="type" value="<?= $type ?>">
 		<input type="hidden" name="reply_to_id" id="reply_to_id" value="<?= $reply_to_id ?>">
 		<input type="hidden" name="content_id" id="content_id" value="<?= $content_id ?>">
 		<input type="hidden" name="geo_lat" id="geo_lat" value="<?= $geo_lat ?>">
@@ -29,7 +29,6 @@ $(document).ready(function()
 	{
 		e.preventDefault();		
 		var comment_data = $('#comments_write_form').serializeArray();
-		console.log(comment_data);
 					
 		$.oauthAjax(
 		{			
@@ -52,7 +51,6 @@ $(document).ready(function()
 					if (reply_to_id)	var append_to_where = '#comment-replies-' + reply_to_id;
 					else				var append_to_where = '#comments_list';				
 							
-									 	
 					var html = '<li class="' + result.data.sub + 'comment" id="comment-' + result.data.comment_id + '"><a href="' + result.data.profile_link + '"><span class="comment_thumbnail"><img src="' + user_data.image + '" border="0" /></span></a><span class="' + result.data.sub + 'comment"><a href="' + result.data.profile_link + '">' + result.data.name + '</a> ' + result.data.comment + '<span class="comment_date ' + result.data.sub + '">' + result.data.created_at + '</span><ul class="comment_actions"><li><a href="' + base_url + 'api/comments/destroy/id/' + result.data.comment_id + '" id="delete-' + result.data.comment_id + '" class="comment_delete"><span class="item_actions action_delete"></span> Delete</a></li></ul><div class="clear"></div></span><div class="clear"></div></li>';
 			 					 	
 				 	$(append_to_where).append(html).show('slow');
@@ -68,7 +66,7 @@ $(document).ready(function()
 		});
 	});
 
-		
+
 	$('.comment_reply').live('click', function()	
 	{
 		var reply_id = $(this).attr('id').split('-');		
@@ -84,14 +82,8 @@ $(document).ready(function()
 		var comment_element			= '#comment-' + comment_id[1];	
 		var comment_count_current	= $('#comments_count').html();
 		
-		if(comment_count_current == 1)
-		{
-			var comment_count_updated	= 'Write';
-		}
-		else
-		{
-			var comment_count_updated	= parseInt(comment_count_current)-1;		
-		}
+		if(comment_count_current == 1) var comment_count_updated	= 'Write';		
+		else var comment_count_updated	= parseInt(comment_count_current)-1;		
 
 		$.oauthAjax(
 		{
